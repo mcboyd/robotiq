@@ -92,10 +92,14 @@ class CommandGripperActionServer(object):
           if( abs(feedback.requested_position - feedback.position) < GOAL_DETECTION_THRESHOLD or feedback.obj_detected):    # Check if position has been reached 
               watchdog.shutdown()                         # Stop timeout watchdog.
               self._processing_goal = False 
-              self._is_stalled = False              
+              self._is_stalled = False             
           rate.sleep()
       
-      result = feedback                                   # Message declarations are the same 
+      # MCB updated below to get the CURRENT gripper status after the move is complete so the client receives the real current details
+      # result = feedback                                   # Message declarations are the same 
+      result = self._driver.get_current_gripper_status(True)
+      # END MCB updates
+      
       # Send result 
       if not self._is_stalled:
           rospy.logdebug(self._action_name + ": goal reached or object detected Pos: %.3f PosRequested: %.3f ObjectDetected: %r" % (goal_command.position, feedback.requested_position, feedback.obj_detected) )
@@ -150,9 +154,14 @@ class CommandGripperActionServer(object):
         result.error_string = "Invalid joint position on trajectory point "
         self._joint_trajectory_action_server.set_aborted(result)
         return
+      # print(goal_trajectory_point)
+      # print('-'*20)
+      # print(goal_trajectory_point.positions)
       target_speed = goal_trajectory_point.velocities[0] if len(goal_trajectory_point.velocities) > 0 else 0.01
       target_force = goal_trajectory_point.effort[0] if len(goal_trajectory_point.effort) > 0 else 0.1
       goal_command.position = self._driver.from_radians_to_distance(goal_trajectory_point.positions[0])
+      # print('-'*20)
+      # print(goal_command.position)
       goal_command.speed = abs(target_speed) # To-Do: Convert to rad/s
       goal_command.force = target_force
       # Send incoming command to gripper driver
@@ -215,7 +224,7 @@ if __name__ == "__main__":
     comport = rospy.get_param('~comport','/dev/ttyUSB0')
     baud = rospy.get_param('~baud','115200')
     stroke = rospy.get_param('~stroke', 0.085)                # Default stroke is 85mm (Small C / 2 finger adaptive gripper model)
-    joint_name = rospy.get_param('~joint_name', 'finger_joint')    
+    joint_name = rospy.get_param('~joint_name', 'finger_joint')
     sim = rospy.get_param('~sim', False)    
 
     # Create instance of Robotiq Gripper Driver
@@ -228,6 +237,8 @@ if __name__ == "__main__":
     
     # Send and Request data from gripper and update joint state every `r`[Hz]
     r = rospy.Rate(rospy.get_param('~rate', 50 if not sim else 20))
+    # print("sleep r: {0}".format(rospy.get_param('~rate', 50 if not sim else 20)))  # turns out rate is 50 on real robot (50Hz)
+    # rospy.sleep(1)
     while not rospy.is_shutdown():
         gripper_driver.update_driver()
         r.sleep()

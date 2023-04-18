@@ -21,6 +21,7 @@ from robotiq_2f_gripper_control.robotiq_2f_gripper_driver import Robotiq2FingerG
 def operate_gripper():
 
     action_name = rospy.get_param('~action_name', 'command_robotiq_action')
+    print(action_name)
     robotiq_client = actionlib.SimpleActionClient(action_name, CommandRobotiqGripperAction)
     # Wait until grippers are ready to take command
     robotiq_client.wait_for_server()
@@ -40,22 +41,37 @@ def operate_gripper():
     robotiq_client.send_goal(goal)
     # Block processing thread until gripper movement is finished, comment if waiting is not necesary.
     robotiq_client.wait_for_result()
+    test = robotiq_client.get_result()
+    print(test)
+    print('-'*20)
+
+    # rd = Robotiq()
 
     # Use pre-defined functions for robot gripper manipulation.
     #####################################################################################
     while not rospy.is_shutdown():
-        Robotiq.goto(robotiq_client, pos=0.00, speed=0.1, force=100 , block=True)
-        Robotiq.goto(robotiq_client, pos=0.04, speed=0.01, force=10)
-        Robotiq.goto(robotiq_client, pos=0.011, speed=0.01, force=0 , block=True)
-        Robotiq.goto(robotiq_client, pos=0.08, speed=0.11, force=200 , block=True)
+        
+        Robotiq.goto(robotiq_client, pos=0.05, speed=0.1, force=100 , block=True)
+        test = robotiq_client.get_result()
+        print(test)
+        print('-'*20)
+        
+        Robotiq.goto(robotiq_client, pos=0.011, speed=0.01, force=10, block=True)
+        test = robotiq_client.get_result()
+        print(test)
+        print('-'*20)
+        # Robotiq.goto(robotiq_client, pos=0.011, speed=0.01, force=0 , block=True)
+        # rospy.sleep(0.005)
+        # Robotiq.goto(robotiq_client, pos=0.05, speed=0.11, force=200 , block=True)
         # Robotiq.goto(robotiq_client, pos=0.06, speed=0.0, force=0)
-        # break
+        break
 
-    # Prints out the result of executing the action
-    return robotiq_client.get_result()  # A FibonacciResult
+    # Returns the result of executing the action
+    return robotiq_client.get_result()
 
 if __name__ == '__main__':
     # Initializes a rospy node so that the SimpleActionClient can
     # publish and subscribe over ROS.
     rospy.init_node('robotiq_2f_client')
     result = operate_gripper()
+    # print(result)
