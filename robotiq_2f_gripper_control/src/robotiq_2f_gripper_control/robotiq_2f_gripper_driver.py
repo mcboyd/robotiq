@@ -51,7 +51,7 @@ import numpy as np
 import rospy
 from enum import Enum
 
-WATCHDOG_TIME = 1.0   # Max Time without communication with gripper allowed
+WATCHDOG_TIME = 2.0   # Max Time without communication with gripper allowed
 
 class Robotiq2FingerGripperDriver:
     """
@@ -83,9 +83,13 @@ class Robotiq2FingerGripperDriver:
         # Instanciate and open communication with gripper.
         self._gripper = Robotiq2FingerGripper(device_id=0, stroke=stroke, comport=self._comport, baud=self._baud)
         
-        self._max_joint_limit = 0.8
+        self._max_joint_limit = 0.08
         if( self._gripper.stroke == 0.140 ):
-            self._max_joint_limit = 0.7
+            self._max_joint_limit = 0.07
+        # MCB added to account for Hand-e gripper
+        elif( self._gripper.stroke == 0.05 ):
+            self._max_joint_limit = 0.05
+        # END MCB addition
         
         if not self._gripper.init_success:
             rospy.logerr("Unable to open commport to %s" % self._comport)
@@ -101,10 +105,16 @@ class Robotiq2FingerGripperDriver:
         self._driver_state = 0
         self.is_ready = False
         
-        if not self._gripper.getStatus():
-            rospy.logerr("Failed to contact gripper on port %s ... ABORTING" % self._comport)
-            return                
-                
+        # MCB added looping structure below to accomodate cases where "getstatus" is a little slow
+        status_check = 0
+        while not self._gripper.getStatus():
+            rospy.sleep(0.05)
+            status_check += 1
+            if status_check > 10:
+                rospy.logerr("Failed to contact gripper on port %s ... ABORTING" % self._comport)
+                return                
+        # END MCB changes
+
         self._run_driver()
         self._last_update_time = rospy.get_time()
         
@@ -171,12 +181,22 @@ class Robotiq2FingerGripperDriver:
             # rospy.loginfo(" %.3f %.3f %.3f " % (pos,vel,force))
             self._gripper.goto(pos=pos,vel=vel,force=force)
             
-    def get_current_gripper_status(self):
+    def get_current_gripper_status(self, wait=False):
         """
         Public function to obtain the current gripper status.
 
+        Args:
+            wait: If wait is True, it waits until the gripper is not moving and then pulls the current status.
+                  When False, the information can be several cycles old, but this can be sufficient in many circumstances.
+
         Returns:  Instance of `robotiq_2f_gripper_msgs/RobotiqGripperStatus` message. See the message declaration for fields description
         """
+        # MCB added to get CURRENT gripper status:
+        if wait:
+            while not self._gripper.getStatus() or self._gripper.is_moving():
+                rospy.sleep(0.01)
+        # END MCB addition
+
         status = RobotiqGripperStatus()
         status.header.stamp = rospy.get_rostime()
         status.header.seq = self._seq
@@ -199,10 +219,13 @@ class Robotiq2FingerGripperDriver:
         js.header.stamp = rospy.get_rostime()
         js.header.seq = self._seq
         js.name = [self._joint_name]
-        max_joint_limit = 0.8
-        if( self._gripper.stroke == 0.140 ):
-            max_joint_limit = 0.7
+        max_joint_limit = self._max_joint_limit  # MCB added (and commented out below) to use class parameter rather than check each time!
+        # max_joint_limit = 0.8
+        # if( self._gripper.stroke == 0.140 ):
+        #     max_joint_limit = 0.7
+        
         pos = np.clip(max_joint_limit - ((max_joint_limit/self._gripper.stroke) * self._gripper.get_pos()), 0., max_joint_limit)
+        
         js.position = [pos]
         dt = rospy.get_time() - self._prev_joint_state_time
         self._prev_joint_state_time = rospy.get_time()
@@ -247,7 +270,7 @@ class Robotiq2FingerGripperDriver:
             else:
                 stat = RobotiqGripperStatus()
                 #js = JointState()
-                stat = self.get_current_gripper_status()
+                stat = self.get_current_gripper_status(True)
                 js = self._update_gripper_joint_state()
                 if stat.is_ready:
                     self.is_ready = True 
@@ -280,6 +303,7 @@ class Robotiq2FingerGripperDriver:
         
         # If communication failed, check if connection was truly lost
         elif (update_time - self._last_update_time) > WATCHDOG_TIME:
+            print("Update time: {0}, Last time: {1}, Diff: {2}, Watchdog time: {3}".format(update_time, self._last_update_time, (update_time - self._last_update_time), WATCHDOG_TIME))
             rospy.logfatal("Failed to contact gripper on port: %s"% self._comport)
             # self._gripper.shutdown()
             # rospy.signal_shutdown("Communication to gripper lost")         
@@ -295,7 +319,16 @@ class Robotiq2FingerGripperDriver:
       """
       Private helper function to convert a joint position in radians to meters (distance between fingers)
       """
-      return np.clip(self._gripper.stroke - ((self._gripper.stroke/self._max_joint_limit) * joint_pose), 0.0, self._max_joint_limit)
+      # MCB added below return for Hand-E grippers only: to double the size of the incoming joint_pose (i.e., "2*joint_pose") because...
+      #   RViz thinks it is commanding each of the two grippers to move an amount, but this driver is concerned with how far apart the grippers are.
+      # So, for example, if we want the grippers to be 10mm apart, Rviz will tell both grippers to move 20mm towards each other...
+      #   since 20mm movement by left gripper and 20mm movement by right gripper: 50mm stroke - 40mm total movement = 10mm apart.
+      #   But this driver just wants to receive 10mm so it can move the grippers to be 10mm apart (hence the other mathematical gymnastics below).
+      if self._gripper.stroke == 0.05:
+        return np.clip(self._gripper.stroke - ((self._gripper.stroke/self._max_joint_limit) * (2*joint_pose)), 0.0, self._max_joint_limit)
+
+      # Original return statement for non-Hand-E grippers below  
+      return np.clip(self._gripper.stroke - ((self._gripper.stroke/self._max_joint_limit) * (joint_pose)), 0.0, self._max_joint_limit)
       
     def get_current_joint_position(self):
       return self.from_distance_to_radians(self._gripper.get_pos())
@@ -325,7 +358,7 @@ class Robotiq2FingerGripperDriver:
 
         # Sends the goal to the gripper.
         if block:   
-            client.send_goal(goal)
+            client.send_goal_and_wait(goal)
             client.wait_for_result()
         else:
             client.send_goal(goal)
@@ -441,9 +474,9 @@ class Robotiq2FingerSimulatedGripperDriver:
         self._gripper_joint_state_pub = rospy.Publisher("/joint_states" , JointState, queue_size=10)  
         self.is_ready = True
         self._is_moving = False
-        self._max_joint_limit = 0.8
+        self._max_joint_limit = 0.08
         if( self._stroke == 0.140 ):
-            self._max_joint_limit = 0.7
+            self._max_joint_limit = 0.07
 
 
     def update_driver(self):
