@@ -12,24 +12,31 @@ The contents of this README have not been properly-curated yet, so please forgiv
 For practical purposes, this package should work on Kinetic & Melodic.  We have no plans to maintain it for older ROS
 distributions at this time.
 
+## This Fork
+This fork of the Clearpath original repo includes support for the Hand-E gripper attached to a UR e-series arm. This code was updated on ROS Melodic and may be backwards compatible with Kinetic, but this has not been tested. 
+
+### Files w/ Hand-E Updates
+See comments labeled with "MCB" in all files for specifics.
+- *robotiq_modbus_rtu/src/robotiq_modbus_rtu/comModbusRtu.py*
+  - Updated to address periodic timeouts and unusual responses
+- *robotiq_2f_gripper_control/src/robotiq_2f_gripper_control/robotiq_2f_gripper_driver.py*
+  - Updated in several locations to accomodate specifics of Hand-E grippers...look for "MCB" comments
+- *robotiq_2f_gripper_control/scripts/robotiq_2f_action_server.py*
+  - Updated to return the **current** gripper status at the end of a move, rather than the cached value from the last check
+
+### New File for Hand-E Attached to UR5e
+ - *robotiq_2f_gripper_control/launch/ur5e_hande_action_server.launch*
+   - Sets defaults specific for communicating with the Hand-E using the default UR tool communication port */tmp/ttyUR*
+   - Also sets the Hand-E joint name to report from URDF *hande_left_finger_joint*
+
 ## ROS Distro Support
 
-|         | Indigo | Jade | Kinetic | Melodic |
-|:-------:|:------:|:----:|:-------:|:-------:|
-| Branch  | [`indigo-devel`](https://github.com/ros-industrial/robotiq/tree/indigo-devel) | [`jade-devel`](https://github.com/ros-industrial/robotiq/tree/jade-devel) | [`kinetic-devel`](https://github.com/ros-industrial/robotiq/tree/kinetic-devel) | [`kinetic-devel`](https://github.com/ros-industrial/robotiq/tree/kinetic-devel) |)
-| Status  |  supported | not supported |  supported |  supported |
-| Version | [version](http://repositories.ros.org/status_page/ros_indigo_default.html?q=robotiq) | [version](http://repositories.ros.org/status_page/ros_jade_default.html?q=robotiq) | [version](http://repositories.ros.org/status_page/ros_kinetic_default.html?q=robotiq) | [version](http://repositories.ros.org/status_page/ros_melodic_default.html?q=robotiq) |
+|         | Kinetic | Melodic |
+|:-------:|:-------:|:-------:|
+| Branch  | [`kinetic-devel`](https://github.com/mcboyd/robotiq/tree/kinetic-devel) | [`melodic-hande`](https://github.com/mcboyd/robotiq/tree/melodic-hande) |)
+| Status  |  supported |  supported |
 
-## Travis - Continuous Integration
-
-Status: [![Build Status](https://travis-ci.com/ros-industrial/robotiq.svg?branch=kinetic-devel)](https://travis-ci.com/ros-industrial/robotiq)
-
-## ROS Buildfarm
-
-|         | Indigo Source | Indigo Debian | Kinetic Source | Kinetic Debian |  Melodic Source  |  Melodic Debian |
-|:-------:|:-------------------:|:-------------------:|:-------------------:|:-------------------:|:-------------------:|:-------------------:|
-| robotiq | [![not released](http://build.ros.org/buildStatus/icon?job=Isrc_uT__robotiq__ubuntu_trusty__source)](http://build.ros.org/view/Isrc_uT/job/Isrc_uT__robotiq__ubuntu_trusty__source/) | [![not released](http://build.ros.org/buildStatus/icon?job=Ibin_uT64__robotiq__ubuntu_trusty_amd64__binary)](http://build.ros.org/view/Ibin_uT64/job/Ibin_uT64__robotiq__ubuntu_trusty_amd64__binary/) | [![not released](http://build.ros.org/buildStatus/icon?job=Jsrc_uT__robotiq__ubuntu_trusty__source)](http://build.ros.org/view/Jsrc_uT/job/Jsrc_uT__robotiq__ubuntu_trusty__source/) | [![not released](http://build.ros.org/buildStatus/icon?job=Jbin_uT64__robotiq__ubuntu_trusty_amd64__binary)](http://build.ros.org/view/Jbin_uT64/job/Jbin_uT64__robotiq__ubuntu_trusty_amd64__binary/) | [![not released](http://build.ros.org/buildStatus/icon?job=Ksrc_uX__robotiq__ubuntu_xenial__source)](http://build.ros.org/view/Ksrc_uX/job/Ksrc_uX__robotiq__ubuntu_xenial__source/) | [![not released](http://build.ros.org/buildStatus/icon?job=Kbin_uX64__robotiq__ubuntu_xenial_amd64__binary)](http://build.ros.org/view/Kbin_uX64/job/Kbin_uX64__robotiq__ubuntu_xenial_amd64__binary/) | | [![not released](http://build.ros.org/buildStatus/icon?job=Ksrc_uX__robotiq__ubuntu_bounty__source)](http://build.ros.org/view/Ksrc_uX/job/Ksrc_uX__robotiq__ubuntu_bounty__source/) | [![not released](http://build.ros.org/buildStatus/icon?job=Kbin_uX64__robotiq__ubuntu_bounty_amd64__binary)](http://build.ros.org/view/Kbin_uX64/job/Kbin_uX64__robotiq__ubuntu_bounty_amd64__binary/) |
-
+## Support
 [![support level: community](https://img.shields.io/badge/support%20level-community-lightgray.png)](http://rosindustrial.org/news/2016/10/7/better-supporting-a-growing-ros-industrial-software-platform)
 
 [ROS-Industrial][] robotiq meta-package.  See the [ROS wiki][] page for more information.
@@ -41,8 +48,7 @@ Status: [![Build Status](https://travis-ci.com/ros-industrial/robotiq.svg?branch
 
 ## Contents
 
-This repo holds source code for all versions > groovy. For those versions <= groovy see: [SVN repo][]
+This repo holds source code for all versions > groovy. 
 
 [ROS-Industrial]: http://www.ros.org/wiki/Industrial
 [ROS wiki]: http://ros.org/wiki/robotiq
-[SVN repo]: https://code.google.com/p/swri-ros-pkg/source/browse
