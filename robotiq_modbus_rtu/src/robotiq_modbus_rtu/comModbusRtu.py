@@ -44,7 +44,9 @@ The module depends on pymodbus (http://code.google.com/p/pymodbus/) for the Modb
 """
 
 from pymodbus.client.sync import ModbusSerialClient
+from pymodbus.register_read_message import ReadHoldingRegistersResponse
 from math import ceil
+import time
 
 class communication:	
 
@@ -53,10 +55,16 @@ class communication:
       
    def connectToDevice(self, device):
       """Connection to the client - the method takes the IP address (as a string, e.g. '192.168.1.11') as an argument."""
-      self.client = ModbusSerialClient(method='rtu',port=device,stopbits=1, bytesize=8, baudrate=115200, timeout=5.0)
-      if not self.client.connect():
-          print "Unable to connect to %s" % device
-          return False
+      self.client = ModbusSerialClient(method='rtu',port=device,stopbits=1, bytesize=8, baudrate=115200, timeout=0.3)  # MCB changed timeout from 5.0 to 0.3
+      
+      # MCB added check structure and time delay below to allow time for the connection to stabilize
+      check = self.client.connect()
+      time.sleep(0.5)
+      if not check:
+         print "Unable to connect to %s" % device
+         return False
+      # END MCB changes
+
       return True
 
    def disconnectFromDevice(self):
@@ -93,6 +101,7 @@ class communication:
       try:
         response = self.client.read_holding_registers(0x07D0, numRegs, unit=0x0009)
       except Exception as e:
+        print("Exception received:")
         print(e)
         return None
 
@@ -102,8 +111,15 @@ class communication:
         return None
 
       if response.isError():
-        print(response)
+        # print("Error received:")
+        # print(response)
         return None
+
+      # MCB added to handle unusual responses
+      if not isinstance(response, ReadHoldingRegistersResponse):
+         print(response)
+         return None
+      # END MCB addition
 
       #Instantiate output as an empty list
       output = []
