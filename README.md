@@ -13,14 +13,16 @@ For practical purposes, this package should work on Kinetic & Melodic.  We have 
 distributions at this time.
 
 ## This Fork
-This fork of the Clearpath original repo includes support for the Hand-E gripper attached to a UR e-series arm. This code was updated on ROS Melodic and may be backwards compatible with Kinetic, but this has not been tested. 
+This fork of the Clearpath original repo includes **support for the Hand-E gripper** attached to a UR e-series arm and includes **a standalone (non-ROS) implementation**.  
+This code was updated on ROS Melodic and may be backwards compatible with Kinetic, but this has not been tested. 
 
-### Files w/ Hand-E Updates
+### Files w/ Hand-E & Standalone (non-ROS) Updates
 See comments labeled with "MCB" in all files for specifics.
 - *robotiq_modbus_rtu/src/robotiq_modbus_rtu/comModbusRtu.py*
   - Updated to address periodic timeouts and unusual responses
 - *robotiq_2f_gripper_control/src/robotiq_2f_gripper_control/robotiq_2f_gripper_driver.py*
   - Updated in several locations to accomodate specifics of Hand-E grippers...look for "MCB" comments
+  - **Added standalone (non-ROS) class** as *Robotiq2FingerStandaloneGripperDriver*
 - *robotiq_2f_gripper_control/scripts/robotiq_2f_action_server.py*
   - Updated to return the **current** gripper status at the end of a move, rather than the cached value from the last check
 
@@ -28,6 +30,10 @@ See comments labeled with "MCB" in all files for specifics.
  - *robotiq_2f_gripper_control/launch/ur5e_hande_action_server.launch*
    - Sets defaults specific for communicating with the Hand-E using the default UR tool communication port */tmp/ttyUR*
    - Also sets the Hand-E joint name to report from URDF *hande_left_finger_joint*
+
+### New File for Standalone (non-ROS) Implementation
+- *robotiq_2f_gripper_control/scripts/robotiq_2f_standalone_client.py*
+  - Example of instantiating the **Standalone (non-ROS) class** and prompting the user for actions (e.g., open, close, etc.)  
 
 ## ROS Distro Support
 
