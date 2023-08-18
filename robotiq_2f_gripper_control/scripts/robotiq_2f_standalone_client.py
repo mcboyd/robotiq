@@ -37,7 +37,7 @@ if __name__ == "__main__":
             elif(task=="q"):
                 break
             else:
-                gripper_driver.goto(pos=0.01)
+                gripper_driver.goto(pos=0.03)
         except KeyboardInterrupt:
             #Statements to execute upon that exception
             print("You typed CTRL + C, which is the keyboard interrupt exception")
