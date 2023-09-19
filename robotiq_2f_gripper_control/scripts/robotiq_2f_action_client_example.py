@@ -49,22 +49,22 @@ def operate_gripper():
 
     # Use pre-defined functions for robot gripper manipulation.
     #####################################################################################
-    while not rospy.is_shutdown():
+    # while not rospy.is_shutdown():
         
-        Robotiq.goto(robotiq_client, pos=0.05, speed=0.1, force=100 , block=True)
-        test = robotiq_client.get_result()
-        print(test)
-        print('-'*20)
+    #     Robotiq.goto(robotiq_client, pos=0.05, speed=0.1, force=100 , block=True)
+    #     test = robotiq_client.get_result()
+    #     print(test)
+    #     print('-'*20)
         
-        Robotiq.goto(robotiq_client, pos=0.011, speed=0.01, force=10, block=True)
-        test = robotiq_client.get_result()
-        print(test)
-        print('-'*20)
-        # Robotiq.goto(robotiq_client, pos=0.011, speed=0.01, force=0 , block=True)
-        # rospy.sleep(0.005)
-        # Robotiq.goto(robotiq_client, pos=0.05, speed=0.11, force=200 , block=True)
-        # Robotiq.goto(robotiq_client, pos=0.06, speed=0.0, force=0)
-        break
+    #     Robotiq.goto(robotiq_client, pos=0.011, speed=0.01, force=10, block=True)
+    #     test = robotiq_client.get_result()
+    #     print(test)
+    #     print('-'*20)
+    #     # Robotiq.goto(robotiq_client, pos=0.011, speed=0.01, force=0 , block=True)
+    #     # rospy.sleep(0.005)
+    #     # Robotiq.goto(robotiq_client, pos=0.05, speed=0.11, force=200 , block=True)
+    #     # Robotiq.goto(robotiq_client, pos=0.06, speed=0.0, force=0)
+    #     break
 
     # Returns the result of executing the action
     return robotiq_client.get_result()

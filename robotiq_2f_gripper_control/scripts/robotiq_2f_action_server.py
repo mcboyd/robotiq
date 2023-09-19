@@ -26,7 +26,7 @@ import actionlib
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryResult, FollowJointTrajectoryFeedback, FollowJointTrajectoryGoal
 from robotiq_2f_gripper_msgs.msg import CommandRobotiqGripperFeedback, CommandRobotiqGripperResult, CommandRobotiqGripperAction, CommandRobotiqGripperGoal
 
-GOAL_DETECTION_THRESHOLD = 0.05 # Max deviation from target goal to consider as goal "reached"
+GOAL_DETECTION_THRESHOLD = 0.002 # Max deviation, in meters, from target goal to consider as goal "reached" 
 
 class CommandGripperActionServer(object):
 
@@ -62,6 +62,8 @@ class CommandGripperActionServer(object):
         rospy.signal_shutdown("Gripper on port %s seems not to respond" % (self._driver._comport))
     
     def execute_cb(self, goal_command):
+      # print('-'*20)
+      # print("IN execute_cb")
       rospy.logdebug( (self._action_name + ": New goal received Pos:%.3f Speed: %.3f Force: %.3f Force-Stop: %r") % (goal_command.position, goal_command.speed, goal_command.force, goal_command.stop) )
       # Send incoming command to gripper driver
       self._driver.update_gripper_command(goal_command)
@@ -93,6 +95,8 @@ class CommandGripperActionServer(object):
               watchdog.shutdown()                         # Stop timeout watchdog.
               self._processing_goal = False 
               self._is_stalled = False             
+              # print("hopefully stopping because object detected: ")
+              # print(feedback)
           rate.sleep()
       
       # MCB updated below to get the CURRENT gripper status after the move is complete so the client receives the real current details
