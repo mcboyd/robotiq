@@ -66,7 +66,7 @@ namespace robotiq_2f_gripper_control{
             }
         }
         
-        void close(float speed = 0.1, float force = 220, bool wait  = true){
+        void close(float speed = 0.1, float force = 0, bool wait  = true){
             goal.position = 0.0;
             goal.speed = speed;
             goal.force = force;
@@ -77,7 +77,7 @@ namespace robotiq_2f_gripper_control{
                 sendGoal( goal );
         }
 
-        void open(float speed = 0.1, float force = 220, bool wait  = true){
+        void open(float speed = 0.1, float force = 50, bool wait  = true){
             goal.position = 255;
             goal.speed = speed;
             goal.force = force;
@@ -99,7 +99,7 @@ namespace robotiq_2f_gripper_control{
                 sendGoal( goal );
         }
 
-        void goToPosition(float position, float speed = 0.1, float force = 220, bool wait  = true){
+        void goToPosition(float position, float speed = 0.1, float force = 0, bool wait  = true){
             goal.position = position;
             goal.speed = speed;
             goal.force = force;
