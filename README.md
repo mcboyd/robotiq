@@ -9,12 +9,14 @@ See: https://github.com/ros-industrial/robotiq/issues/185#issuecomment-784918238
 
 The contents of this README have not been properly-curated yet, so please forgive any missing/incorrect information.
 
-For practical purposes, this package should work on Kinetic & Melodic.  We have no plans to maintain it for older ROS
+For practical purposes, this package should work on Kinetic & Melodic & Noetic.  We have no plans to maintain it for older ROS
 distributions at this time.
+
+**For Noetic, it is crucial to downgrade pymodbus to v2.2.0 (e.g., pip install pymodbus==2.2.0)**
 
 ## This Fork
 This fork of the Clearpath original repo includes **support for the Hand-E gripper** attached to a UR e-series arm and includes **a standalone (non-ROS) implementation**.  
-This code was updated on ROS Melodic and may be backwards compatible with Kinetic, but this has not been tested. 
+This code was updated on ROS Noetic and may be backwards compatible with Melodic/Kinetic, but this has not been tested. 
 
 ### Files w/ Hand-E & Standalone (non-ROS) Updates
 See comments labeled with "MCB" in all files for specifics.
@@ -37,10 +39,10 @@ See comments labeled with "MCB" in all files for specifics.
 
 ## ROS Distro Support
 
-|         | Kinetic | Melodic |
-|:-------:|:-------:|:-------:|
-| Branch  | [`kinetic-devel`](https://github.com/mcboyd/robotiq/tree/kinetic-devel) | [`melodic-hande`](https://github.com/mcboyd/robotiq/tree/melodic-hande) |)
-| Status  |  supported |  supported |
+|         | Kinetic | Melodic | Noetic |
+|:-------:|:-------:|:-------:|:-------:|
+| Branch  | [`kinetic-devel`](https://github.com/mcboyd/robotiq/tree/kinetic-devel) | [`melodic-hande`](https://github.com/mcboyd/robotiq/tree/melodic-hande) |) |  [`kinetic-devel`](https://github.com/mcboyd/robotiq/tree/noetic-hande) |
+| Status  |  supported |  supported |  supported |
 
 ## Support
 [![support level: community](https://img.shields.io/badge/support%20level-community-lightgray.png)](http://rosindustrial.org/news/2016/10/7/better-supporting-a-growing-ros-industrial-software-platform)

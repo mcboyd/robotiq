@@ -61,7 +61,7 @@ class communication:
       check = self.client.connect()
       time.sleep(0.5)
       if not check:
-         print "Unable to connect to %s" % device
+         print("Unable to connect to %s" % device)
          return False
       # END MCB changes
 
@@ -81,7 +81,7 @@ class communication:
       message = []
 
       #Fill message by combining two bytes in one register
-      for i in range(0, len(data)/2):
+      for i in range(0, int(len(data)/2)):
          message.append((data[2*i] << 8) + data[2*i+1])
 
       #To do!: Implement try/except 
