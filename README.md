@@ -41,7 +41,7 @@ See comments labeled with "MCB" in all files for specifics.
 
 |         | Kinetic | Melodic | Noetic |
 |:-------:|:-------:|:-------:|:-------:|
-| Branch  | [`kinetic-devel`](https://github.com/mcboyd/robotiq/tree/kinetic-devel) | [`melodic-hande`](https://github.com/mcboyd/robotiq/tree/melodic-hande) |) |  [`kinetic-devel`](https://github.com/mcboyd/robotiq/tree/noetic-hande) |
+| Branch  | [`kinetic-devel`](https://github.com/mcboyd/robotiq/tree/kinetic-devel) | [`melodic-hande`](https://github.com/mcboyd/robotiq/tree/melodic-hande) |  [`noetic-hande`](https://github.com/mcboyd/robotiq/tree/noetic-hande) |
 | Status  |  supported |  supported |  supported |
 
 ## Support
